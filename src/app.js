@@ -9,7 +9,9 @@ $(document).ready(function() {
 	var $base = document.baseURI;
 	$media = $("meta[property='slides:media']").attr("content");
 
-	// build our view model
+	/***
+	 * viewModel: an our bound object for KnockoutJS
+	 */
 	var viewModel = function() {
 		var self = this;
 
@@ -40,8 +42,6 @@ $(document).ready(function() {
 		 * returns nothing
 		 */
 		self.loadPresentation = function(data, event) {
-			History.pushState(data, data.name, $base + data.slug);
-
 			// set visibility on each slide
 			data.assets[0].visible = ko.observable(true);
 			for (var i=1; i<data.assets.length; i++) {
@@ -53,16 +53,27 @@ $(document).ready(function() {
 			self.currentSlide(0);
 
 			// if there's a slideshow running, stop it
-			if (self.slideshowRunning()) {
-				clearInterval(self.slideshowRunning());
-				self.slideshowRunning(null);
-			}
+			self.stopPresentation();
+
 			// start the next slideshow
 			self.slideshowRunning(
 				setInterval(function() {
 					self.advanceSlide();
 				}, 2000)
 			);
+		};
+
+		/***
+		 * stopPresentation: stops the currently running presentation
+		 *
+		 * returns nothing
+		 */
+		self.stopPresentation = function() {
+			if (self.slideshowRunning()) {
+				clearInterval(self.slideshowRunning());
+				self.slideshowRunning(null);
+				self.assets([]);
+			}
 		};
 
 		/***
@@ -78,7 +89,19 @@ $(document).ready(function() {
 			self.assets()[nextSlide].visible(true);
 			self.currentSlide(nextSlide);
 		};
-	};
+	}; /* end viewModel */
+
+	// create a binding handler for a fade transition
+	ko.bindingHandlers.visibleFade = {
+		init: function(element, valueAccessor) {
+			var value = valueAccessor();
+			$(element).toggle(value());
+		},
+		update: function(element, valueAccessor) {
+			var value = valueAccessor();
+			value() ? $(element).fadeIn(1000) : $(element).fadeOut(1000);
+		}
+	}
 
 	// apply our view bindings
 	var view = new viewModel();
@@ -86,12 +109,19 @@ $(document).ready(function() {
 
 	// load the list of possible presentations
 	view.loadData("/presentation/", {}, function(data){
-		console.log(data.objects);
 		view.presentations(data.objects);
 	});
 
+	// bind our listener for setting the image height
 	$(window).resize(function() {
 		view.windowHeight($(window).height() + "px");
+	});
+
+	// bind our keypress handler for stopping the slideshow
+	$(window).keypress(function(event) {
+		if (event.which == 0) {
+			view.stopPresentation();
+		}
 	});
 });
 

@@ -18,12 +18,13 @@ html(lang="en")
       link(rel="stylesheet", href=file)
   body
     .row(data-bind="visible: !slideshowRunning()")
-      .medium-6.large-6.columns
+      .medium-6.large-6.medium-centered.large-centered.columns
+        h1 Presentations
         ul(data-bind="foreach: presentations")
           li
-            a(data-bind="text: name, attr: {href: slug}, click: $parent.loadPresentation")
+            a(data-bind="text: name, click: $parent.loadPresentation")
     ul.slides(data-bind="foreach: assets")
-      li(data-bind="visible: visible")
+      li(data-bind="visibleFade: visible")
         img(data-bind="attr: {src: $media + path, alt: name}, style: { height: $parent.windowHeight }")
             
 
