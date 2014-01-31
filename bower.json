@@ -1,5 +1,6 @@
 {
-  "name": "project_name",
+  "name": "slides",
+	"private": true,
   "version": "0.0.1",
   "authors": [
     "Nathan Wittstock <code@fardogllc.com>"
@@ -19,6 +20,5 @@
 		"foundation": "5.0.*",
 		"knockout.js": "3.*",
 		"retina.js": "*",
-		"history.js": "1.8.x"
 	}
 }

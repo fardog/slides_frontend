@@ -57,6 +57,7 @@ $(document).ready(function() {
 
 			// start the next slideshow
 			self.slideshowRunning(true);
+			$('body').css('cursor', 'none'); // hide cursor
 			setTimeout(function() {
 				self.advanceSlide();
 			}, self.assets()[self.currentSlide()].time * 1000);
@@ -70,6 +71,7 @@ $(document).ready(function() {
 		self.stopPresentation = function() {
 			if (self.slideshowRunning()) {
 				self.slideshowRunning(false);
+				$('body').css('cursor', 'auto'); // show cursor again
 				self.assets([]);
 			}
 		};

@@ -5,7 +5,6 @@ module.exports = function (grunt) {
 	var jsFiles = [
 		'bower_components/jquery/jquery.min.js',
 		'bower_components/retina.js/src/retina.js',
-		'bower_components/history.js/scripts/bundled/html5/jquery.history.js',
 		'bower_components/knockout.js/knockout.js',
 		'bower_components/foundation/js/foundation/foundation.js',
 		'assets/js/app.js'
