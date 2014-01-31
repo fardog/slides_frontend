@@ -5,10 +5,23 @@ module.exports = function (grunt) {
 	var jsFiles = [
 		'bower_components/jquery/jquery.min.js',
 		'bower_components/retina.js/src/retina.js',
+		'bower_components/history.js/scripts/bundled/html5/jquery.history.js',
 		'bower_components/knockout.js/knockout.js',
 		'bower_components/foundation/js/foundation/foundation.js',
 		'assets/js/app.js'
 	];
+
+	var devURIs = { 
+		base: 'http://slides.dev:8002/', 
+		api: 'http://slides.dev:8001/api/v1',
+		media: 'http://slides.dev:8001'
+	};
+
+	var deployURIs = {
+		base: 'http://slides.dev:8002/', 
+		api: 'http://slides.dev:8001/api/v1',
+		media: 'http://slides.dev:8001'
+	};
 
 	var cssFiles = [
 		'assets/css/app.css'
@@ -58,7 +71,8 @@ module.exports = function (grunt) {
 					data: {
 						modernizr: 'assets/js/modernizr.min.js',
 						js: ['assets/js/app.min.js'],
-						css: ['assets/css/app.css']
+						css: ['assets/css/app.css'],
+						uri: deployURIs
 					}
 				},
 				files: {
@@ -70,7 +84,8 @@ module.exports = function (grunt) {
 					data: {
 						modernizr: 'assets/js/modernizr.min.js',
 						js: ['assets/js/app.min.js'],
-						css: ['assets/css/app.css']
+						css: ['assets/css/app.css'],
+						uri: deployURIs
 					}
 				},
 				files: {
@@ -82,7 +97,8 @@ module.exports = function (grunt) {
 					data: {
 						modernizr: modernizr,
 						js: jsFiles,
-						css: ['assets/css/app.css']
+						css: ['assets/css/app.css'],
+						uri: devURIs
 					}
 				},
 				files: {

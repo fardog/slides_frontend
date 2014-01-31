@@ -10,7 +10,22 @@
 @import '../bower_components/retina.js/src/_retina.scss';
 
 // Define all your styles past this line.
-h1 {
+ul.slides {
+	margin: 0;
+	padding: 0;
+
+	li {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+
+		img {
+			display: block;
+			margin-left: auto;
+			margin-right: auto;
+			min-height: 500px;
+		}
+	}
 }
 
 // Media Queries matched to Foundation's

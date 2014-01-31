@@ -18,6 +18,7 @@
 	"dependencies": {
 		"foundation": "5.0.*",
 		"knockout.js": "3.*",
-		"retina.js": "*"
+		"retina.js": "*",
+		"history.js": "1.8.x"
 	}
 }
