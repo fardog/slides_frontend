@@ -56,11 +56,10 @@ $(document).ready(function() {
 			self.stopPresentation();
 
 			// start the next slideshow
-			self.slideshowRunning(
-				setInterval(function() {
-					self.advanceSlide();
-				}, 2000)
-			);
+			self.slideshowRunning(true);
+			setTimeout(function() {
+				self.advanceSlide();
+			}, self.assets()[self.currentSlide()].time * 1000);
 		};
 
 		/***
@@ -70,8 +69,7 @@ $(document).ready(function() {
 		 */
 		self.stopPresentation = function() {
 			if (self.slideshowRunning()) {
-				clearInterval(self.slideshowRunning());
-				self.slideshowRunning(null);
+				self.slideshowRunning(false);
 				self.assets([]);
 			}
 		};
@@ -88,6 +86,9 @@ $(document).ready(function() {
 			self.assets()[self.currentSlide()].visible(false);
 			self.assets()[nextSlide].visible(true);
 			self.currentSlide(nextSlide);
+			setTimeout(function() {
+				if (self.slideshowRunning()) self.advanceSlide();
+			}, self.assets()[self.currentSlide()].time * 1000);
 		};
 	}; /* end viewModel */
 

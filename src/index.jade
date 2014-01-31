@@ -25,7 +25,7 @@ html(lang="en")
             a(data-bind="text: name, click: $parent.loadPresentation")
     ul.slides(data-bind="foreach: assets")
       li(data-bind="visibleFade: visible")
-        img(data-bind="attr: {src: $media + path, alt: name}, style: { height: $parent.windowHeight }")
+        img(data-bind="attr: {src: $media + asset.path, alt: asset.name}, style: { height: $parent.windowHeight }")
             
 
     each file in js

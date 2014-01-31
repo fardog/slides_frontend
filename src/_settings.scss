@@ -36,9 +36,9 @@
 
 // We use these to control various global styles
 $body-bg: #000;
-$body-font-color: #aaa;
+$body-font-color: #222;
 // $body-font-family: "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif;
-// $body-font-weight: normal;
+$body-font-weight: 300;
 // $body-font-style: normal;
 
 // We use this to control font-smoothing
@@ -51,6 +51,7 @@ $body-font-color: #aaa;
 
 // We use these as default colors throughout
 // $primary-color: #008CBA;
+$primary-color: #73a9ba;
 // $secondary-color: #e7e7e7;
 // $alert-color: #f04124;
 // $success-color: #43AC6A;
