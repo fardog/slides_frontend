@@ -31,6 +31,7 @@ $(document).ready(function() {
 		self.currentSlide = ko.observable();
 		self.slideshowRunning = ko.observable(null);
 		self.windowHeight = ko.observable($(window).height() + "px");
+		self.timeout = null;
 
 		/***
 		 * loadPresentation: fired when a presentation is selected, loads the 
@@ -56,9 +57,10 @@ $(document).ready(function() {
 			self.stopPresentation();
 
 			// start the next slideshow
+			if (self.timeout || self.slideshowRunning()) return;
 			self.slideshowRunning(true);
 			$('body').css('cursor', 'none'); // hide cursor
-			setTimeout(function() {
+			self.timeout = setTimeout(function() {
 				self.advanceSlide();
 			}, self.assets()[self.currentSlide()].time * 1000);
 		};
@@ -74,6 +76,8 @@ $(document).ready(function() {
 				$('body').css('cursor', 'auto'); // show cursor again
 				self.assets([]);
 			}
+			clearTimeout(self.timeout);
+			self.timeout = null;
 		};
 
 		/***
@@ -88,7 +92,7 @@ $(document).ready(function() {
 			self.assets()[self.currentSlide()].visible(false);
 			self.assets()[nextSlide].visible(true);
 			self.currentSlide(nextSlide);
-			setTimeout(function() {
+			self.timeout = setTimeout(function() {
 				if (self.slideshowRunning()) self.advanceSlide();
 			}, self.assets()[self.currentSlide()].time * 1000);
 		};
@@ -122,7 +126,7 @@ $(document).ready(function() {
 
 	// bind our keypress handler for stopping the slideshow
 	$(window).keypress(function(event) {
-		if (event.which == 0) {
+		if (event.which === 0) {
 			view.stopPresentation();
 		}
 	});
