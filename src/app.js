@@ -43,7 +43,7 @@ $(document).ready(function() {
 		// the current window height in pixels
 		self.windowHeight = ko.observable($(window).height() + "px");
 		// the timer that advances to the next slide
-		self.timeout = null;
+		self.slideTimeout = null;
 
 		/***
 		 * loadPresentation: fired when a presentation is selected, loads the 
@@ -87,7 +87,7 @@ $(document).ready(function() {
 			self.stopPresentation();
 
 			// mark the slideshow as running. bail if there's one running already
-			if (self.timeout || self.slideshowRunning()) return;
+			if (self.slideTimeout || self.slideshowRunning()) return;
 			self.slideshowRunning(true);
 
 			// hide the cursor
@@ -104,9 +104,9 @@ $(document).ready(function() {
 		 * returns nothing
 		 */
 		self.stopPresentation = function() {
-			// clear the timeout
-			clearTimeout(self.timeout);
-			self.timeout = null;
+			// clear the slide timeout
+			clearTimeout(self.slideTimeout);
+			self.slideTimeout = null;
 
 			// if the slideshow is running, we reset things to non-running state
 			if (self.slideshowRunning()) {
@@ -140,7 +140,7 @@ $(document).ready(function() {
 			self.currentSlide(nextSlide);
 
 			// set timeout for the next advance
-			self.timeout = setTimeout(function() {
+			self.slideTimeout = setTimeout(function() {
 				if (self.slideshowRunning()) self.advanceSlide();
 			}, self.assets()[self.currentSlide()].time * 1000);
 		};
