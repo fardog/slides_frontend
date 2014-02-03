@@ -22,6 +22,7 @@ $(document).ready(function() {
 
 		// utility function for loading data
 		self.loadData = function(url, params, next) {
+			console.log ($prefix + url);
 			$.get($prefix + url, params, function(data, textStatus, jqXHR) {
 				next(data);
 			}).fail(function (data) {
@@ -44,6 +45,10 @@ $(document).ready(function() {
 		self.windowHeight = ko.observable($(window).height() + "px");
 		// the timer that advances to the next slide
 		self.slideTimeout = null;
+		// the timer that updates the currently running presentation
+		self.assetUpdateInterval = null;
+		self.assetUpdateFrequency = 6 * 60 * 1120; // every 6-ish minutes
+		self.assetUpdateURI = null;
 
 		/***
 		 * loadPresentation: fired when a presentation is selected, loads the 
@@ -55,6 +60,9 @@ $(document).ready(function() {
 		 * returns nothing
 		 */
 		self.loadPresentation = function(data, event) {
+			// save the resource_uri for later updating
+			self.assetUpdateURI = data.resource_uri;
+
 			// put a visibility marker on each slide
 			for (var i=0; i<data.assets.length; i++) {
 				data.assets[i].visible = ko.observable(false);
@@ -93,6 +101,11 @@ $(document).ready(function() {
 			// hide the cursor
 			$('body').css('cursor', 'none');
 
+			// start the asset update timer
+			self.assetUpdateInterval = setInterval(function() {
+				self.loadData(self.assetUpdateURI, {}, self.loadPresentation);
+			}, self.assetUpdateFrequency);
+
 			// show the first slide
 			self.advanceSlide();
 		};
@@ -108,6 +121,10 @@ $(document).ready(function() {
 			clearTimeout(self.slideTimeout);
 			self.slideTimeout = null;
 
+			// stop the asset update timeout
+			clearTimeout(self.assetUpdateInterval);
+			self.assetUpdateInterval = null;
+
 			// if the slideshow is running, we reset things to non-running state
 			if (self.slideshowRunning()) {
 				self.slideshowRunning(false);
@@ -116,6 +133,7 @@ $(document).ready(function() {
 				// blank out the asset list
 				self.assets([]);
 				self.currentSlide(null);
+				self.assetUpdateURI = null;
 			}
 		};
 
@@ -164,7 +182,7 @@ $(document).ready(function() {
 	ko.applyBindings(view);
 
 	// load the list of possible presentations
-	view.loadData("/presentation/", {}, function(data){
+	view.loadData("/api/v1/presentation/", {}, function(data){
 		view.presentations(data.objects);
 	});
 

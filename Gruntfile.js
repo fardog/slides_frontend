@@ -12,13 +12,13 @@ module.exports = function (grunt) {
 
 	var devURIs = { 
 		base: 'http://slides.dev:8002/', 
-		api: 'http://slides.dev:8001/api/v1',
+		api: 'http://slides.dev:8001',
 		media: 'http://slides.dev:8001'
 	};
 
 	var deployURIs = {
 		base: 'http://slides.dev:8002/', 
-		api: 'http://slides.dev:8001/api/v1',
+		api: 'http://slides.dev:8001',
 		media: 'http://slides.dev:8001'
 	};
 
