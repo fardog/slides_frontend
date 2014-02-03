@@ -13,8 +13,9 @@ $(document).ready(function() {
 	$prefix = $("meta[property='slides:api']").attr("content");
 	$base = document.baseURI;
 
+
 	/***
-	 * viewModel: an our bound object for KnockoutJS
+	 * viewModel: our bound object for KnockoutJS
 	 */
 	var viewModel = function() {
 		var self = this;
@@ -32,11 +33,11 @@ $(document).ready(function() {
 
 
 		// list of presentations that were loaded from the server
-		self.presentations = ko.observableArray();
+		self.presentations = ko.observableArray([]);
 		// list of assets (slides) in the currently running presentation
 		self.assets = ko.observableArray([]);
 		// the currently displayed slide
-		self.currentSlide = ko.observable();
+		self.currentSlide = ko.observable(null);
 		// whether or not the slideshow is running
 		self.slideshowRunning = ko.observable(null);
 		// the current window height in pixels
@@ -58,8 +59,27 @@ $(document).ready(function() {
 			for (var i=0; i<data.assets.length; i++) {
 				data.assets[i].visible = ko.observable(false);
 			}
+
+			// if we have a current slide marked, make that one visible
+			if (self.currentSlide()) {
+				data.assets[self.currentSlide()].visible(true);
+			}
+			// load the assets into the array
 			self.assets(data.assets);
 
+			// start the slideshow if it's not running.
+			if (!self.slideshowRunning()) {
+				self.startPresentation();
+			}
+		}
+
+
+		/***
+		 * startPresentation: starts the currently loaded presentation
+		 *
+		 * returns nothing
+		 */
+		self.startPresentation = function() {
 			// set the current slide to -1, so we fade in the first slide
 			self.currentSlide(-1);
 
@@ -95,6 +115,7 @@ $(document).ready(function() {
 				$('body').css('cursor', 'auto');
 				// blank out the asset list
 				self.assets([]);
+				self.currentSlide(null);
 			}
 		};
 
