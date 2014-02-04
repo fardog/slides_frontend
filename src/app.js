@@ -22,7 +22,6 @@ $(document).ready(function() {
 
 		// utility function for loading data
 		self.loadData = function(url, params, next) {
-			console.log ($prefix + url);
 			$.get($prefix + url, params, function(data, textStatus, jqXHR) {
 				next(data);
 			}).fail(function (data) {
@@ -181,21 +180,47 @@ $(document).ready(function() {
 	var view = new viewModel();
 	ko.applyBindings(view);
 
-	// load the list of possible presentations
-	view.loadData("/api/v1/presentation/", {}, function(data){
-		view.presentations(data.objects);
-	});
+	// see if we were given a specific display name
+	var display = null;
+	if(location.hash.length > 0) {
+		var hash = location.hash.replace('#', '');
+		var parameters = hash.split('=');
+		if (parameters[0] === 'display' && parameters[1].length > 0) {
+			display = parameters[1];
+		}
+	}
+	
+	// if we have a display parameter, we can try to get that display's pres.
+	if(display) {
+		view.loadData("/api/v1/display/", {slug: display}, function(data) {
+			// TODO: move this into the view model
+			if(data.objects[0].presentation.length > 0) {
+				view.loadData(data.objects[0].presentation, {}, function(data) {
+					view.loadPresentation(data);
+				});
+			}
+		});
+	}
+	// if we don't have a display parameter, load a list of presentations
+	else {
+		// load the list of possible presentations
+		view.loadData("/api/v1/presentation/", {}, function(data){
+			view.presentations(data.objects);
+		});
+
+		// only bind our key handler for stopping the slideshow if we have a list
+		$(window).keyup(function(event) {
+			if (event.which === 27) { // 27 is "Escape"
+				view.stopPresentation();
+			}
+		});
+	}
 
 	// bind our listener for setting the image height
 	$(window).resize(function() {
 		view.windowHeight($(window).height() + "px");
 	});
 
-	// bind our key handler for stopping the slideshow
-	$(window).keyup(function(event) {
-		if (event.which === 27) { // 27 is "Escape"
-			view.stopPresentation();
-		}
-	});
+	
 });
 
