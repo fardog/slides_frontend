@@ -46,15 +46,16 @@ $(document).ready(function() {
 		self.slideTimeout = null;
 		// the timer that updates the currently running presentation
 		self.assetUpdateInterval = null;
-		self.assetUpdateFrequency = 6 * 60 * 1120; // every 6-ish minutes
+		self.assetUpdateFrequency = 0.25 * 60 * 1020; // every 15-ish seconds
 		self.assetUpdateURI = null;
+		self.assetLastModified = null;
 
 		// the timer that updates the currently display, if used
 		self.display = null;
 		self.displayUpdateInterval = null;
-		self.displayUpdateFrequency = 2 * 60 * 1000; // every 2 minutes
+		self.displayUpdateFrequency = 0.25 * 60 * 1000; // every 15 seconds
 		self.displayUpdateURI = null;
-		self.displayPresentationURI = null;
+		self.displayLastModified = null;
 
 		/***
 		 * loadPresentation: fired when a presentation is selected, loads the 
@@ -66,8 +67,9 @@ $(document).ready(function() {
 		 * returns nothing
 		 */
 		self.loadPresentation = function(data, event) {
-			// save the resource_uri for later updating
+			// save the resource_uri and last modification for later updating
 			self.assetUpdateURI = data.resource_uri;
+			self.assetLastModified = data.last_modified;
 
 			// put a visibility marker on each slide
 			for (var i=0; i<data.assets.length; i++) {
@@ -85,7 +87,39 @@ $(document).ready(function() {
 			if (!self.slideshowRunning()) {
 				self.startPresentation();
 			}
-		}
+		};
+
+
+		/***
+		 * checkPresentationUpdateNeeded: checks a newly-fetched presentation 
+		 *  against the currently loaded one, and updates if necessary
+		 *
+		 * data - the newly-fetched presentation
+		 *
+		 * returns nothing
+		 */
+		self.checkPresentationUpdateNeeded = function(data) {
+			// first, we see if the presentation itself has a new modification date
+			if (data.last_modified !== self.assetLastModified) {
+				// update needed
+				self.stopPresentation();
+				self.loadPresentation(data, null);
+				return;
+			}
+
+			// now we need to check each asset's last modification, and update
+			for(var i=0; i<data.assets.length; i++) {
+				if(data.assets[i].asset.last_modified !== 
+						self.assets()[i].asset.last_modified) {
+					// update needed
+					self.stopPresentation();
+					self.loadPresentation(data, null);
+					return;
+				}
+			}
+
+			// otherwise no update is needed, and we just fall through
+		};
 
 
 		/***
@@ -99,7 +133,7 @@ $(document).ready(function() {
 		self.loadDisplay = function(data) {
 			// save our URIs for later loading/comparison
 			self.displayUpdateURI = data.resource_uri;
-			self.displayPresentationURI = data.presentation;
+			self.displayLastModified = data.last_modified;
 
 			// load the presentation data directly
 			self.loadData(data.presentation, {}, function(data) {
@@ -114,14 +148,14 @@ $(document).ready(function() {
 			self.displayUpdateInterval = setInterval(function() {
 				// update the display data
 				self.loadData(self.displayUpdateURI, {}, function(data) {
-					// if we see a new URL, we need to stop the presentation and load it
-					if(self.displayPresentationURI !== data.presentation) {
+					// if we see a new modification date, we need to change presentations
+					if(self.displayLastModified !== data.last_modified) {
 						self.stopPresentation();
 						self.loadDisplay(data);
 					}
 				});
 			}, self.displayUpdateFrequency);
-		}
+		};
 
 
 		/***
@@ -145,7 +179,7 @@ $(document).ready(function() {
 
 			// start the asset update timer
 			self.assetUpdateInterval = setInterval(function() {
-				self.loadData(self.assetUpdateURI, {}, self.loadPresentation);
+				self.loadData(self.assetUpdateURI, {}, self.checkPresentationUpdateNeeded);
 			}, self.assetUpdateFrequency);
 
 			// show the first slide

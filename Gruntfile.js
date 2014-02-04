@@ -17,9 +17,9 @@ module.exports = function (grunt) {
 	};
 
 	var deployURIs = {
-		base: 'http://slides.dev:8002/', 
-		api: 'http://slides.dev:8001',
-		media: 'http://slides.dev:8001'
+		base: 'http://slides.north.lan/', 
+		api: 'http://slides-admin.north.lan',
+		media: ''
 	};
 
 	var cssFiles = [
