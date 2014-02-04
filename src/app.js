@@ -49,6 +49,13 @@ $(document).ready(function() {
 		self.assetUpdateFrequency = 6 * 60 * 1120; // every 6-ish minutes
 		self.assetUpdateURI = null;
 
+		// the timer that updates the currently display, if used
+		self.display = null;
+		self.displayUpdateInterval = null;
+		self.displayUpdateFrequency = 2 * 60 * 1000; // every 2 minutes
+		self.displayUpdateURI = null;
+		self.displayPresentationURI = null;
+
 		/***
 		 * loadPresentation: fired when a presentation is selected, loads the 
 		 * 	image assets into the visible array, and starts the slideshow.
@@ -78,6 +85,42 @@ $(document).ready(function() {
 			if (!self.slideshowRunning()) {
 				self.startPresentation();
 			}
+		}
+
+
+		/***
+		 * loadDisplay: when running automatically via the display API, this 
+		 *  function takes a display object and loads that presentation
+		 *
+		 * data - the display object loaded from the API
+		 *
+		 * returns nothing
+		 */
+		self.loadDisplay = function(data) {
+			// save our URIs for later loading/comparison
+			self.displayUpdateURI = data.resource_uri;
+			self.displayPresentationURI = data.presentation;
+
+			// load the presentation data directly
+			self.loadData(data.presentation, {}, function(data) {
+				self.loadPresentation(data);
+			});
+
+			// clear the interval just in case it's running
+			clearInterval(self.displayUpdateInterval);
+			self.displayUpdateInterval = null;
+
+			// start looking to see if this display's presentation has changed
+			self.displayUpdateInterval = setInterval(function() {
+				// update the display data
+				self.loadData(self.displayUpdateURI, {}, function(data) {
+					// if we see a new URL, we need to stop the presentation and load it
+					if(self.displayPresentationURI !== data.presentation) {
+						self.stopPresentation();
+						self.loadDisplay(data);
+					}
+				});
+			}, self.displayUpdateFrequency);
 		}
 
 
@@ -181,24 +224,19 @@ $(document).ready(function() {
 	ko.applyBindings(view);
 
 	// see if we were given a specific display name
-	var display = null;
 	if(location.hash.length > 0) {
 		var hash = location.hash.replace('#', '');
 		var parameters = hash.split('=');
 		if (parameters[0] === 'display' && parameters[1].length > 0) {
-			display = parameters[1];
+			view.display = parameters[1];
 		}
 	}
 	
 	// if we have a display parameter, we can try to get that display's pres.
-	if(display) {
-		view.loadData("/api/v1/display/", {slug: display}, function(data) {
-			// TODO: move this into the view model
-			if(data.objects[0].presentation.length > 0) {
-				view.loadData(data.objects[0].presentation, {}, function(data) {
-					view.loadPresentation(data);
-				});
-			}
+	if(view.display) {
+		view.loadData("/api/v1/display/", {slug: view.display}, function(data) {
+			if(data.objects[0].presentation.length > 0)
+				view.loadDisplay(data.objects[0]);
 		});
 	}
 	// if we don't have a display parameter, load a list of presentations
@@ -220,7 +258,5 @@ $(document).ready(function() {
 	$(window).resize(function() {
 		view.windowHeight($(window).height() + "px");
 	});
-
-	
 });
 
