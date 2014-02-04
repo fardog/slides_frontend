@@ -191,9 +191,9 @@ $(document).ready(function() {
 		view.windowHeight($(window).height() + "px");
 	});
 
-	// bind our keypress handler for stopping the slideshow
-	$(window).keypress(function(event) {
-		if (event.which === 0) {
+	// bind our key handler for stopping the slideshow
+	$(window).keyup(function(event) {
+		if (event.which === 27) { // 27 is "Escape"
 			view.stopPresentation();
 		}
 	});
