@@ -25,8 +25,12 @@ html(lang="en")
             a(data-bind="text: name, click: $parent.loadPresentation")
     ul.slides(data-bind="foreach: assets")
       li(data-bind="visibleFade: visible")
+        // ko if: asset.asset_type.slug == 'img'
         img(data-bind="attr: {src: $media + asset.path, alt: asset.name}, style: { height: $parent.windowHeight }")
-            
+        // /ko
+        // ko if: asset.asset_type.slug == 'video'
+        video(data-bind="attr: {src: $media + asset.path, loop: loop}, style: { height: $parent.windowHeight }", autoplay)
+        // /ko
 
     each file in js
       script(type="text/javascript", src=file)

@@ -233,7 +233,9 @@ $(document).ready(function() {
 			self.assets()[nextSlide].visible(true);
 			self.currentSlide(nextSlide);
 
-			// set timeout for the next advance
+			// set timeout for the next advance, unless it's a looper
+			if (self.assets()[nextSlide].loop) return;
+
 			self.slideTimeout = setTimeout(function() {
 				if (self.slideshowRunning()) self.advanceSlide();
 			}, self.assets()[self.currentSlide()].time * 1000);
